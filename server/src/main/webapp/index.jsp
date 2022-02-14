@@ -15,5 +15,8 @@
 <a href="skiers/1/seasons/2019//////days/3/skiers/">Test 2 - 400 - SkiersServlet Error</a>
 <br/>
 <a href="skiers">Test 3 - 404 - SkiersServlet urlPath == null || urlPath.isEmpty()</a>
+<br/>
+<a href="statistics">Test 4 - 200 - StatsServlet</a>
+
 </body>
 </html>
