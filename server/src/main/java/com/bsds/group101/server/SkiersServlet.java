@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "SkiersServlet", value = "/SkiersServlet")
 public class SkiersServlet extends HttpServlet {
   private static final int ServerWaitTime = 1000; // milliseconds
-  private Map<String, String> pathMap = new HashMap<>();
 
   /**
    * Get ski day vertical for a skier
@@ -146,6 +145,9 @@ public class SkiersServlet extends HttpServlet {
     // http://localhost:8080/server_war_exploded/skiers/3/seasons/2019/days/3/skiers/33 --pass
     // http://localhost:8080/server_war_exploded/skiers/3/vertical --pass
     UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
+
+    // Parse path variables into a Hashmap
+    Map<String, String> pathMap = new HashMap<>();
 
     System.out.println(Arrays.toString(urlParts));
     System.out.println(urlParts.length);
