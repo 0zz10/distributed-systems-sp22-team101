@@ -19,7 +19,7 @@ import io.swagger.client.model.LiftRide;
 import static java.util.concurrent.ThreadLocalRandom.current;
 
 class Phase implements Runnable {
-
+  private String numPhase;
   private int posts_per_thread;
   private CountDownLatch countSignal;
   private int startTime;
@@ -40,6 +40,7 @@ class Phase implements Runnable {
   public static int threadcounter = 0;
 
   Phase(
+      String numPhase,
       int posts_per_thread,
       CountDownLatch countSignal,
       int startTime,
@@ -47,6 +48,7 @@ class Phase implements Runnable {
       int skiLow,
       int skiHigh,
       CSVWriter writer) {
+    this.numPhase = numPhase;
     this.posts_per_thread = posts_per_thread;
     this.countSignal = countSignal;
     this.startTime = startTime;
@@ -58,7 +60,14 @@ class Phase implements Runnable {
   }
 
   Phase(
-      int posts_per_thread, int startTime, int endTime, int skiLow, int skiHigh, CSVWriter writer) {
+      String numPhase,
+      int posts_per_thread,
+      int startTime,
+      int endTime,
+      int skiLow,
+      int skiHigh,
+      CSVWriter writer) {
+    this.numPhase = numPhase;
     this.posts_per_thread = posts_per_thread;
     this.countSignal = null;
     this.startTime = startTime;
@@ -92,9 +101,10 @@ class Phase implements Runnable {
         long latency = System.currentTimeMillis() - reqStartTime;
         String statusCode = String.valueOf(res.getStatusCode());
 
-        // Add record to csv: {"Start Time", "Request Type", "Latency", "Response Code"}
+        // Add record to csv: {"Phase Number", "Start Time", "Request Type", "Latency", "Response
+        // Code"}
         String[] record = {
-          String.valueOf(reqStartTime), "POST", String.valueOf(latency), statusCode
+          numPhase, String.valueOf(reqStartTime), "POST", String.valueOf(latency), statusCode
         };
         writer.writeNext(record);
 
@@ -126,9 +136,9 @@ public class Main {
     long programStart = System.currentTimeMillis();
     int maxThreads = 1024;
     // int ski_lifts = 45;
-    int numRuns = 20;
+    int numRuns = 64;
     int numSkiers = 1024;
-    int numthreads = 64;
+    int numthreads = 256;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
         vector.add(i, i);
@@ -165,7 +175,7 @@ public class Main {
       CSVWriter writer = new CSVWriter(outputfile);
 
       // adding header to csv
-      String[] header = {"Start Time", "Request Type", "Latency", "Response Code"};
+      String[] header = {"Phase Number", "Start Time", "Request Type", "Latency", "Response Code"};
       writer.writeNext(header);
 
       // Phase1
@@ -175,7 +185,8 @@ public class Main {
       // Thread myThreads[] = new Thread[phase1Amount];
       for (int i = 0; i < phase1Amount - 1; i++) {
         executor.submit(
-            new Phase(posts_per_thread, countSignal1, startTime1, endTime1, i, i * 64, writer));
+            new Phase(
+                "1", posts_per_thread, countSignal1, startTime1, endTime1, i, i * 64, writer));
         // Phase phase = new Phase(posts_per_thread,countSignal1,startTime1,endTime1, i, i*64);
         // myThreads[i] = new Thread(phase);
         // myThreads[i].start();
@@ -195,7 +206,8 @@ public class Main {
       ExecutorService executor2 = Executors.newFixedThreadPool(phase2Amount);
       for (int j = 0; j < phase2Amount - 1; j++) {
         executor2.submit(
-            new Phase(posts_per_thread2, countSignal2, startTime2, endTime2, 0, numSkiers, writer));
+            new Phase(
+                "2", posts_per_thread2, countSignal2, startTime2, endTime2, 0, numSkiers, writer));
         // new Phase(posts_per_thread,countSignal1,startTime1,endTime1, i, i*64);
         // Phase phase = new Phase(posts_per_thread2,countSignal2,startTime2,endTime2, 0,
         // numSkiers);
@@ -216,7 +228,8 @@ public class Main {
       System.out.println("Start of phase 3 ");
       ExecutorService executor3 = Executors.newFixedThreadPool(phase3Amount);
       for (int k = 0; k < phase3Amount - 1; k++) {
-        executor3.submit(new Phase(posts_per_thread3, startTime3, endTime3, k, k * 64, writer));
+        executor3.submit(
+            new Phase("3", posts_per_thread3, startTime3, endTime3, k, k * 64, writer));
         // Phase phase = new Phase(posts_per_thread3,startTime3,endTime3, k, k*64);
         // myThreads3[k] = new Thread(phase);
         // myThreads3[k].start();
