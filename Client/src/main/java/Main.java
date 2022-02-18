@@ -1,10 +1,15 @@
+import com.opencsv.CSVWriter;
+
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
 import io.swagger.client.ApiResponse;
 import io.swagger.client.api.SkiersApi;
 import io.swagger.client.model.LiftRide;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.Vector;
@@ -21,7 +26,7 @@ class Phase implements  Runnable{
     private int skiHigh;
     private int skiLow;
     private boolean countSignalBool = false;
-
+    private CSVWriter writer;
 
     String basePath = "http://localhost:8080/server_war_exploded";
     //String basePath2 =  "https://ec2-3-90-191-72.compute-1.amazonaws.com/";
@@ -34,7 +39,7 @@ class Phase implements  Runnable{
     public  static  int threadcounter = 0;
 
 
-    Phase(int posts_per_thread, CountDownLatch countSignal, int startTime, int endTime, int skiLow, int skiHigh ) {
+    Phase(int posts_per_thread, CountDownLatch countSignal, int startTime, int endTime, int skiLow, int skiHigh, CSVWriter writer) {
         this.posts_per_thread = posts_per_thread;
         this.countSignal = countSignal;
         this.startTime = startTime;
@@ -42,22 +47,23 @@ class Phase implements  Runnable{
         this.skiHigh = skiHigh;
         this.skiLow = skiLow;
         this.countSignalBool = true;
+        this.writer = writer;
 
     }
-    Phase(int posts_per_thread, int startTime, int endTime, int skiLow, int skiHigh ) {
+    Phase(int posts_per_thread, int startTime, int endTime, int skiLow, int skiHigh, CSVWriter writer) {
         this.posts_per_thread = posts_per_thread;
         this.countSignal = null;
         this.startTime = startTime;
         this.endTime = endTime;
         this.skiHigh = skiHigh;
         this.skiLow = skiLow;
-
+        this.writer = writer;
     }
 
 
     public void run (){
         for (int i =0; i < this.posts_per_thread; i++) {
-            long sTime = System.currentTimeMillis();
+            long reqStartTime = System.currentTimeMillis();
             //vectorStart.add(sTime);
             SkiersApi apiInstance = new SkiersApi();
             ApiClient client = apiInstance.getApiClient();
@@ -73,6 +79,17 @@ class Phase implements  Runnable{
                 ApiResponse res = apiInstance.writeNewLiftRideWithHttpInfo(liftRide, resortID, seasonID, dayID, skierID);
                 sucecess++;
                 vectorCodes.add(new Integer(res.getStatusCode()));
+
+                long latency = System.currentTimeMillis() - reqStartTime;
+                String statusCode = String.valueOf(res.getStatusCode());
+
+
+                // Add record to csv: {"Start Time", "Request Type", "Latency", "Response Code"}
+                String[] record = {
+                        String.valueOf(reqStartTime), "POST", String.valueOf(latency), statusCode
+                };
+                writer.writeNext(record);
+
                 //System.out.println(res.getStatusCode());
                 //Integer verticalResult = apiInstance.getSkierDayVertical(resortID, seasonID, dayID, skierID);
                 //System.out.println(verticalResult);
@@ -83,11 +100,11 @@ class Phase implements  Runnable{
             }
             threadcounter++;
 
-            long endtime = System.currentTimeMillis();
+            long reqEndtime = System.currentTimeMillis();
             //vectorEnd.add(endtime);
-            long totaltime = endtime - sTime;
+            long totaltime = reqEndtime - reqStartTime;
             vectorTotal.add(totaltime);
-            System.out.println(threadcounter);
+//            System.out.println(threadcounter);
         }
         if (countSignalBool) {
             this.countSignal.countDown();
@@ -99,6 +116,7 @@ class Phase implements  Runnable{
 
 public class Main {
     public static void main (String[] args) throws InterruptedException, FileNotFoundException {
+        long programStart = System.currentTimeMillis();
         int maxThreads = 1024;
         //int ski_lifts = 45;
         int numRuns = 20;
@@ -108,7 +126,6 @@ public class Main {
         for (int i = 0; i < numSkiers; i++) {
             vector.add(i, i);
         }*/
-
 
         //For Phase 1
         int posts_per_thread = (int) Math.round(numRuns * 0.2 * (numSkiers / numthreads/4));
@@ -130,16 +147,27 @@ public class Main {
         int endTime3 = 420;
         int phase3Amount = (int) Math.round(numthreads/4);
 
+        // Create file object for file placed at location specified by filepath (../data/logs/)
+        File file = new File("../data/logs/lab4_" + numRuns + "runs_" + numthreads + "threads.csv");
 
+        try {
+            // create FileWriter object with file as parameter
+            FileWriter outputfile = new FileWriter(file);
+
+            // create CSVWriter object filewriter object as parameter
+            CSVWriter writer = new CSVWriter(outputfile);
+
+            // adding header to csv
+            String[] header = {"Start Time", "Request Type", "Latency", "Response Code"};
+            writer.writeNext(header);
 
         //Phase1
         System.out.println("Start of Phase1: ");
-        long programStart = System.currentTimeMillis();
         ExecutorService executor = Executors.newFixedThreadPool(phase1Amount);
 
         //Thread myThreads[] = new Thread[phase1Amount];
         for (int i = 0; i < phase1Amount-1; i++) {
-            executor.submit(new Phase(posts_per_thread,countSignal1,startTime1,endTime1, i, i*64));
+            executor.submit(new Phase(posts_per_thread,countSignal1,startTime1,endTime1, i, i*64, writer));
             //Phase phase = new Phase(posts_per_thread,countSignal1,startTime1,endTime1, i, i*64);
             //myThreads[i] = new Thread(phase);
             //myThreads[i].start();
@@ -158,7 +186,7 @@ public class Main {
         //Thread myThreads2[] = new Thread[phase2Amount];
         ExecutorService executor2 = Executors.newFixedThreadPool(phase2Amount);
         for (int j = 0; j < phase2Amount-1; j++) {
-            executor2.submit(new Phase(posts_per_thread2,countSignal2,startTime2,endTime1, 0, numSkiers));
+            executor2.submit(new Phase(posts_per_thread2,countSignal2,startTime2,endTime2, 0, numSkiers, writer));
             //new Phase(posts_per_thread,countSignal1,startTime1,endTime1, i, i*64);
             //Phase phase = new Phase(posts_per_thread2,countSignal2,startTime2,endTime2, 0, numSkiers);
             //myThreads2[j] = new Thread(phase);
@@ -181,7 +209,7 @@ public class Main {
         System.out.println("Start of phase 3 ");
         ExecutorService executor3 = Executors.newFixedThreadPool(phase3Amount);
         for (int k = 0; k < phase3Amount-1; k++) {
-            executor3.submit(new Phase(posts_per_thread3,startTime3,endTime3, k, k*64));
+            executor3.submit(new Phase(posts_per_thread3,startTime3,endTime3, k, k*64, writer));
             //Phase phase = new Phase(posts_per_thread3,startTime3,endTime3, k, k*64);
             //myThreads3[k] = new Thread(phase);
             //myThreads3[k].start();
@@ -213,22 +241,30 @@ public class Main {
 
         Collections.sort(Phase.vectorTotal);
         long medianResponseTime = Phase.vectorTotal.get((Phase.vectorTotal.size()/2));
-        long throughput = Phase.vectorCodes.size()/(programEnd-programStart);
-        sb.append(meanResponseTime);
-        sb.append(",");
-        sb.append(medianResponseTime);
-        sb.append(",");
-        sb.append(throughput);
-        sb.append(",");
+        int throughput = (int) (((double) Phase.vectorCodes.size()) / (programEnd - programStart) * 1000); // requests per second, casting to double
+        System.out.println(throughput);
 
-        PrintWriter pw = new PrintWriter("lab4_2.csv");
-        pw.write(sb.toString());
-        pw.flush();
-        pw.close();
-        System.out.printf("mean: %d\n Median %d\n Throughput: %d\n ProgramStartTime: %d\n ProgramEndtime: %d\n TotalprogramTime: %d\n",
-                meanResponseTime, medianResponseTime, throughput, programStart, programEnd, programEnd- programStart);
+//        sb.append(meanResponseTime);
+//        sb.append(",");
+//        sb.append(medianResponseTime);
+//        sb.append(",");
+//        sb.append(throughput);
+//        sb.append(",");
+//
+//        PrintWriter pw = new PrintWriter("lab4_2.csv");
+//        pw.write(sb.toString());
+//        pw.flush();
+//        pw.close();
+        System.out.printf("total requests: %d\nmean: %d\nMedian %d\nThroughput: %d\nProgramStartTime: %d\nProgramEndtime: %d\n TotalprogramTime: %d\n",
+                Phase.vectorCodes.size(), meanResponseTime, medianResponseTime, throughput, programStart, programEnd, programEnd- programStart);
+
+        System.out.printf("success: %d\n failure %d\n duration: %d\n",
+                Phase.sucecess, Phase.failure, programEnd- programStart);
         System.out.println("Finished");
-
-
+        // closing writer connection
+            writer.close();
+        } catch (IOException e) {
+                    e.printStackTrace();
+                }
     }
 }
