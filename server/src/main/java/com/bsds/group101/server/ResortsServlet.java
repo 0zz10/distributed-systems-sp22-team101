@@ -40,12 +40,6 @@ public class ResortsServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    // sleep for 1000ms. You can vary this value for different tests
-    try {
-      Thread.sleep(ServerWaitTime);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
 
     // return response in json
     response.setContentType("application/json");
@@ -96,12 +90,6 @@ public class ResortsServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    // sleep for 1000ms. You can vary this value for different tests
-    try {
-      Thread.sleep(ServerWaitTime);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
 
     // return response in json
     response.setContentType("application/json");
