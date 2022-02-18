@@ -5,7 +5,7 @@ Date: February 18, 2022
 References: https://github.com/gortonator/bsds-6650/blob/master/assignments-2021/Assignment-1.md
 Tags: AWS EC2, Client-Server Model, ExecutorService, Java Multithreaded, Java Servlet, Little's Law, Performance Analysis, Tomcat
 
-![[https://www.youtube.com/watch?v=UYZvIc_gxo8&list=PLLGiwLi4Z63sQdoptiqqLzHTgBHBK83ed&index=9&t=111s](https://www.youtube.com/watch?v=UYZvIc_gxo8&list=PLLGiwLi4Z63sQdoptiqqLzHTgBHBK83ed&index=9&t=111s)](img/Untitled.png)
+![[https://www.youtube.com/watch?v=UYZvIc_gxo8&list=PLLGiwLi4Z63sQdoptiqqLzHTgBHBK83ed&index=9&t=111s](https://www.youtube.com/watch?v=UYZvIc_gxo8&list=PLLGiwLi4Z63sQdoptiqqLzHTgBHBK83ed&index=9&t=111s)](Lab%204%20-%20Mi%20dbae6/Untitled.png)
 
 [https://www.youtube.com/watch?v=UYZvIc_gxo8&list=PLLGiwLi4Z63sQdoptiqqLzHTgBHBK83ed&index=9&t=111s](https://www.youtube.com/watch?v=UYZvIc_gxo8&list=PLLGiwLi4Z63sQdoptiqqLzHTgBHBK83ed&index=9&t=111s)
 
@@ -13,7 +13,7 @@ Tags: AWS EC2, Client-Server Model, ExecutorService, Java Multithreaded, Java Se
 
 ## Architecture
 
-![bsds-lab4.drawio.png](img/bsds-lab4.drawio.png)
+![bsds-lab4.drawio.png](Lab%204%20-%20Mi%20dbae6/bsds-lab4.drawio.png)
 
 In this Lab, you will hit a milestone by finishing the build of a client that generates and sends lift ride data to a server in the cloud. The server will simply accept and validate requests, and send an HTTP 200/201 response. In future labs, we’ll add the processing and storage logic to the server, and send a richer set of requests.
 
@@ -21,7 +21,7 @@ Note: you have now been put in **groups** (check the "group" tab under "[peopl
 
 # **Implement the Server API**
 
-![Untitled](img/Untitled%201.png)
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%201.png)
 
 Make sure Lab 3 is working! :)  Now, complete *the rest* of the Server API, beyond just the skiers information!
 
@@ -43,7 +43,7 @@ get a list of seasons for the specified resort
 
 Add a new season for a resort
 
-### [skiers](https://app.swaggerhub.com/apis/cloud-perf/SkiDataAPI/1.16#/skiers) Information about skiers and their lift usage
+## [skiers](https://app.swaggerhub.com/apis/cloud-perf/SkiDataAPI/1.16#/skiers) Information about skiers and their lift usage
 
 `POST [/skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID}](https://app.swaggerhub.com/apis/cloud-perf/SkiDataAPI/1.16#/skiers/writeNewLiftRide)`
 
@@ -57,7 +57,7 @@ get ski day vertical for a skier
 
 get the total vertical for the skier for specified seasons at the specified resort
 
-### [statistics](https://app.swaggerhub.com/apis/cloud-perf/SkiDataAPI/1.16#/statistics) Server side response time values
+## [statistics](https://app.swaggerhub.com/apis/cloud-perf/SkiDataAPI/1.16#/statistics) Server side response time values
 
 `GET [/statistics](https://app.swaggerhub.com/apis/cloud-perf/SkiDataAPI/1.16#/statistics/getPerformanceStats)`
 
@@ -75,7 +75,7 @@ Test each servlet API with [POSTMAN (Links to an external site.)](https://www.
 
 # Build the Client (NOW we will get the party started!)
 
-![Untitled](img/Untitled%202.png)
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%202.png)
 
 This is the major part of *this* lab. We want a multithreaded Java client we can configure to upload a day of lift rides to the server and exert various loads on the server.
 
@@ -136,13 +136,13 @@ If your throughput is not close to this estimate for each of the test runs, you 
 
 ## Checkpoint
 
-![Untitled](img/Untitled%203.png)
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%203.png)
 
 # Instrumenting the Client (déjà vu?!)
 
-![Untitled](img/Untitled%204.png)
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%204.png)
 
-![Untitled](img/Untitled%205.png)
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%205.png)
 
 With your load generating client working wonderfully, we want to now (again) instrument the client so we have deeper insights into the performance of the system. This is *EXACTLY what you did in Lab 3*, but for each POST request:
 
@@ -162,11 +162,38 @@ You may want to do all the processing of latencies in your client after the test
 
 The client should calculate these and display them in the output window in addition to the output from the previous step, and then cleanly terminate.
 
+## Results
+
+### 20runs_64threads
+
 ```
 mean response time:   23.3ms
 median response time: 6.0ms
 p99 (99th percentile) response time: 138.0ms
 throughput = 11838requests/5056ms = 2356requests/second
+```
+
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%206.png)
+
+### 64runs_256threads
+
+```
+total requests: 38229
+mean response time:  187 ms
+median response time: 142 ms
+Throughput: 36935requests/ 30399ms = 1257requests/second
+```
+
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%207.png)
+
+### 64runs_1024threads
+
+```
+total requests: 36935
+mean response time:  492 ms
+median response time: 414 ms
+p99 (99th percentile) response time: 1840.66ms
+Throughput: 36935requests/ 18108ms = 2039requests/second
 ```
 
 # Deliverables
