@@ -30,7 +30,7 @@ class Phase implements Runnable {
   private CSVWriter writer;
 
 //  String basePath = "http://localhost:8080/server_war_exploded";
-  String basePath = "http://34.205.20.175:8080/server-v1.0";
+  String basePath = "http://3.86.25.58:8080/server-v1.0";
   public static int sucecess = 0;
   public static int failure = 0;
   public static Vector<Integer> vectorCodes = new Vector<Integer>();
