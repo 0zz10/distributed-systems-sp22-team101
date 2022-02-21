@@ -107,7 +107,7 @@ class Phase implements Runnable {
           numPhase, String.valueOf(reqStartTime), "POST", String.valueOf(latency), statusCode
         };
         writer.writeNext(record);
-
+//        System.out.println(record[0]);
         // System.out.println(res.getStatusCode());
         // Integer verticalResult = apiInstance.getSkierDayVertical(resortID, seasonID, dayID,
         // skierID);
@@ -136,9 +136,9 @@ public class Main {
     long programStart = System.currentTimeMillis();
     int maxThreads = 1024;
     // int ski_lifts = 45;
-    int numRuns = 20;
+    int numRuns = 10;
     int numSkiers = 1024;
-    int numthreads = 16;
+    int numthreads = 64;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
         vector.add(i, i);
@@ -201,7 +201,7 @@ public class Main {
       countSignal1.await();
 
       // Phase 2
-      System.out.println("Start of phase 2 ");
+      System.out.println("Start of Phase2: ");
       // Thread myThreads2[] = new Thread[phase2Amount];
       ExecutorService executor2 = Executors.newFixedThreadPool(phase2Amount);
       for (int j = 0; j < phase2Amount - 1; j++) {
@@ -225,7 +225,7 @@ public class Main {
       // ExecutorService executor = Executors.newFixedThreadPool(numthreads);
       // Phase 3
       // Thread myThreads3[] = new Thread[phase3Amount];
-      System.out.println("Start of phase 3 ");
+      System.out.println("Start of Phase3: ");
       ExecutorService executor3 = Executors.newFixedThreadPool(phase3Amount);
       for (int k = 0; k < phase3Amount - 1; k++) {
         executor3.submit(
@@ -235,6 +235,8 @@ public class Main {
         // myThreads3[k].start();
         // countdown latch// have a wait somwhere here
       }
+
+
 
       executor.shutdown();
       executor2.shutdown();
@@ -289,8 +291,9 @@ public class Main {
           programEnd - programStart);
 
       System.out.printf(
-          "success: %d\n failure %d\n duration: %d\n",
+          "success: %d\nfailure %d\nduration: %d\n",
           Phase.sucecess, Phase.failure, programEnd - programStart);
+
       System.out.println("Finished");
       // closing writer connection
       writer.close();

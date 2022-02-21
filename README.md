@@ -164,37 +164,60 @@ The client should calculate these and display them in the output window in addit
 
 ## Results
 
-### 20runs_64threads
+### 10runs_1024skiers_128threads
 
-```
-mean response time:   23.3ms
-median response time: 6.0ms
-p99 (99th percentile) response time: 138.0ms
-throughput = 11838requests/5056ms = 2356requests/second
+```python
+total requests: 6101
+Mean: 87 ms
+Median: 83 ms
+Throughput: 1203 requests/second
 ```
 
 ![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%206.png)
 
-### 64runs_256threads
+### 10runs_1024skiers_64threads
 
-```
-total requests: 38229
-mean response time:  187 ms
-median response time: 142 ms
-Throughput: 36935requests/ 30399ms = 1257requests/second
+```python
+total requests: 6069
+Mean: 83 ms
+Median: 82 ms
+Throughput: 666 requests/second
 ```
 
 ![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%207.png)
 
-### 64runs_1024threads
+### 20runs_1024skiers_64threads
 
+```python
+total requests: 24478
+Mean: 81 ms
+Median: 82 ms
+Throughput: 713 requests/second
 ```
-total requests: 36935
-mean response time:  492 ms
-median response time: 414 ms
-p99 (99th percentile) response time: 1840.66ms
-Throughput: 36935requests/ 18108ms = 2039requests/second
+
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%208.png)
+
+### 20runs_2048skiers_128threads
+
+```python
+total requests: 24488
+Mean: 86 ms
+Median: 78 ms
+Throughput: 1342 requests/second
 ```
+
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%209.png)
+
+### 20runs_2048skiers_256threads
+
+```python
+total requests: 24832
+Mean: 85 ms
+Median: 83 ms
+Throughput: 2652 requests/second
+```
+
+![Untitled](Lab%204%20-%20Mi%20dbae6/Untitled%2010.png)
 
 # Deliverables
 
