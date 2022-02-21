@@ -29,8 +29,8 @@ class Phase implements Runnable {
   private boolean countSignalBool = false;
   private CSVWriter writer;
 
-  String basePath = "http://localhost:8080/server_war_exploded";
-  // String basePath2 =  "https://ec2-3-90-191-72.compute-1.amazonaws.com/";
+//  String basePath = "http://localhost:8080/server_war_exploded";
+  String basePath = "http://34.205.20.175:8080/server-v1.0";
   public static int sucecess = 0;
   public static int failure = 0;
   public static Vector<Integer> vectorCodes = new Vector<Integer>();
@@ -136,9 +136,9 @@ public class Main {
     long programStart = System.currentTimeMillis();
     int maxThreads = 1024;
     // int ski_lifts = 45;
-    int numRuns = 64;
+    int numRuns = 20;
     int numSkiers = 1024;
-    int numthreads = 256;
+    int numthreads = 16;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
         vector.add(i, i);
@@ -165,7 +165,7 @@ public class Main {
     int phase3Amount = (int) Math.round(numthreads / 4);
 
     // Create file object for file placed at location specified by filepath (../data/logs/)
-    File file = new File("../data/logs/lab4_" + numRuns + "runs_" + numthreads + "threads.csv");
+    File file = new File("../data/logs/lab4_" + numRuns + "runs_" + numSkiers +"skiers_"+ numthreads + "threads.csv");
 
     try {
       // create FileWriter object with file as parameter
