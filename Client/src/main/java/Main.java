@@ -145,7 +145,7 @@ public class Main {
     // int ski_lifts = 45;
     int numRuns = 40;
     int numSkiers = 20000;
-    int numthreads = 64;
+    int numthreads = 256;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
         vector.add(i, i);
@@ -294,7 +294,7 @@ public class Main {
       //        pw.flush();
       //        pw.close();
       System.out.printf(
-          "total requests: %d\nMean: %d\nMedian: %d\nThroughput: %d\nProgramStartTime: %d\nProgramEndtime: %d\nTotalprogramTime: %d\n",
+          "total requests: %d\nmean response time: %d\nmedian response time: %d\nThroughput: %d\nProgramStartTime: %d\nProgramEndtime: %d\nTotalprogramTime: %d\n",
           Phase.vectorCodes.size(),
           meanResponseTime,
           medianResponseTime,
