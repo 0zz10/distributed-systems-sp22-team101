@@ -29,8 +29,8 @@ class Phase implements Runnable {
   private boolean countSignalBool = false;
   private CSVWriter writer;
 
-//  String basePath = "http://localhost:8080/server_war_exploded";
-  String basePath = "http://3.86.25.58:8080/server-v1.0";
+  String basePath = "http://localhost:8080/server_war_exploded";
+  //  String basePath = "http://3.86.25.58:8080/server-v1.0";
   public static int sucecess = 0;
   public static int failure = 0;
   public static Vector<Integer> vectorCodes = new Vector<Integer>();
@@ -90,7 +90,14 @@ class Phase implements Runnable {
       String dayID = "56"; // String | ID of the day
       Integer skierID =
           current().nextInt(this.skiLow, this.skiHigh + 1); // Integer | ID of the skier;
+      Integer time = current().nextInt(100, 500);
+      Integer liftID = current().nextInt(0, 20);
+      Integer waitTime = current().nextInt(0, 100);
       LiftRide liftRide = new LiftRide();
+      // instantiate liftRide object to avoid empty request body
+      liftRide.setTime(time);
+      liftRide.setLiftID(liftID);
+      liftRide.setWaitTime(waitTime);
 
       try {
         ApiResponse res =
@@ -107,7 +114,7 @@ class Phase implements Runnable {
           numPhase, String.valueOf(reqStartTime), "POST", String.valueOf(latency), statusCode
         };
         writer.writeNext(record);
-//        System.out.println(record[0]);
+        //        System.out.println(record[0]);
         // System.out.println(res.getStatusCode());
         // Integer verticalResult = apiInstance.getSkierDayVertical(resortID, seasonID, dayID,
         // skierID);
@@ -136,8 +143,8 @@ public class Main {
     long programStart = System.currentTimeMillis();
     int maxThreads = 1024;
     // int ski_lifts = 45;
-    int numRuns = 10;
-    int numSkiers = 1024;
+    int numRuns = 40;
+    int numSkiers = 20000;
     int numthreads = 64;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
@@ -165,7 +172,15 @@ public class Main {
     int phase3Amount = (int) Math.round(numthreads / 4);
 
     // Create file object for file placed at location specified by filepath (../data/logs/)
-    File file = new File("../data/logs/lab4_" + numRuns + "runs_" + numSkiers +"skiers_"+ numthreads + "threads.csv");
+    File file =
+        new File(
+            "../data/logs/lab6_"
+                + numRuns
+                + "runs_"
+                + numSkiers
+                + "skiers_"
+                + numthreads
+                + "threads.csv");
 
     try {
       // create FileWriter object with file as parameter
@@ -235,8 +250,6 @@ public class Main {
         // myThreads3[k].start();
         // countdown latch// have a wait somwhere here
       }
-
-
 
       executor.shutdown();
       executor2.shutdown();
