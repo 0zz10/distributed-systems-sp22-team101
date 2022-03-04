@@ -10,7 +10,7 @@ public class RecvMultithreaded {
   // create a hello queue to which the message will be delivered
   private static final String QUEUE_NAME = "liftRides";
   // RabbitMQ EC2 Instance Credentials
-  private static final String RABBITMQ_HOST = "44.203.120.107";
+  private static final String RABBITMQ_HOST = "35.168.93.165";
   private static final String RABBITMQ_USERNAME = "test";
   private static final String RABBITMQ_PASSWORD = "test";
 
