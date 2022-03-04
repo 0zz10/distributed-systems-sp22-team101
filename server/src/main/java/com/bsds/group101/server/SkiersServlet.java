@@ -1,11 +1,18 @@
 package com.bsds.group101.server;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +23,12 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "SkiersServlet", value = "/SkiersServlet")
 public class SkiersServlet extends HttpServlet {
   private static final int ServerWaitTime = 1000; // milliseconds
+  // create a hello queue to which the message will be delivered
+  private static final String QUEUE_NAME = "liftRides";
+  // RabbitMQ EC2 Instance Credentials
+  private static final String RABBITMQ_HOST = "35.168.93.165";
+  private static final String RABBITMQ_USERNAME = "test";
+  private static final String RABBITMQ_PASSWORD = "test";
 
   /**
    * Get ski day vertical for a skier
@@ -115,6 +128,23 @@ public class SkiersServlet extends HttpServlet {
       //      String requestJsonString = request.getReader().lines().collect(Collectors.joining());
       //      out.print(requestJsonString);
       //      out.flush();
+
+      // store JSON object and convert to RabbitMQ messages.
+      String requestJsonString = request.getReader().lines().collect(Collectors.joining());
+      // Producer Process
+      ConnectionFactory factory = new ConnectionFactory();
+      factory.setHost(RABBITMQ_HOST);
+      factory.setUsername(RABBITMQ_USERNAME);
+      factory.setPassword(RABBITMQ_PASSWORD);
+      try (Connection connection = factory.newConnection();
+          Channel channel = connection.createChannel()) {
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        channel.basicPublish(
+            "", QUEUE_NAME, null, requestJsonString.getBytes(StandardCharsets.UTF_8));
+        System.out.println(" [x] Sent '" + requestJsonString + "'");
+      } catch (TimeoutException e) {
+        e.printStackTrace();
+      }
     }
   }
 
