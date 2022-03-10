@@ -41,6 +41,8 @@ public class SkiersServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+    // test System.getProperty
+    // System.out.println(System.getProperty("RABBITMQ_USERNAME"));
 
     // return response in json
     response.setContentType("application/json");
@@ -73,6 +75,10 @@ public class SkiersServlet extends HttpServlet {
       // return 200 success message
       response.setStatus(HttpServletResponse.SC_OK);
       response.getWriter().write("34507");
+
+      // TEST JDBC Connection
+      LiftRideDao liftRideDao = new LiftRideDao();
+      liftRideDao.createLiftRide(new LiftRide(10, 2, 3, 5, 500, 20));
 
       //      // store url path variables  to a json format.
       //      PrintWriter out = response.getWriter();
