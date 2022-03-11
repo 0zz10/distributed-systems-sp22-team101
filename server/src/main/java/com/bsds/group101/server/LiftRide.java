@@ -5,14 +5,17 @@ public class LiftRide {
   private int resortId;
   private int seasonId;
   private int dayId;
+  private int time;
   private int waitTime;
   private int liftId;
 
-  public LiftRide(int skierId, int resortId, int seasonId, int dayId, int waitTime, int liftId) {
+  public LiftRide(
+      int skierId, int resortId, int seasonId, int dayId, int time, int waitTime, int liftId) {
     this.skierId = skierId;
     this.resortId = resortId;
     this.seasonId = seasonId;
     this.dayId = dayId;
+    this.time = time;
     this.waitTime = waitTime;
     this.liftId = liftId;
   }
@@ -49,6 +52,14 @@ public class LiftRide {
     this.dayId = dayId;
   }
 
+  public int getTime() {
+    return time;
+  }
+
+  public void setTime(int time) {
+    this.time = time;
+  }
+
   public int getWaitTime() {
     return waitTime;
   }
@@ -63,5 +74,18 @@ public class LiftRide {
 
   public void setLiftId(int liftId) {
     this.liftId = liftId;
+  }
+
+  @Override
+  public String toString() {
+    return "{" +
+            "'skierId':" + skierId +
+            ", 'resortId':" + resortId +
+            ", 'seasonId':" + seasonId +
+            ", 'dayId':" + dayId +
+            ", 'time':" + time +
+            ", 'waitTime':" + waitTime +
+            ", 'liftId':" + liftId +
+            '}';
   }
 }

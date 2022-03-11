@@ -1,5 +1,7 @@
 package com.bsds.group101.server;
 
+import com.google.gson.Gson;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -9,8 +11,8 @@ import org.apache.commons.validator.routines.UrlValidator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,9 @@ public class SkiersServlet extends HttpServlet {
   private static final String RABBITMQ_HOST = "35.168.93.165";
   private static final String RABBITMQ_USERNAME = "test";
   private static final String RABBITMQ_PASSWORD = "test";
+
+  // Parse path variables into a Hashmap
+  Map<String, String> pathMap = new ConcurrentHashMap<>();
 
   /**
    * Get ski day vertical for a skier
@@ -76,9 +81,10 @@ public class SkiersServlet extends HttpServlet {
       response.setStatus(HttpServletResponse.SC_OK);
       response.getWriter().write("34507");
 
-      // TEST JDBC Connection
-      LiftRideDao liftRideDao = new LiftRideDao();
-      liftRideDao.createLiftRide(new LiftRide(10, 2, 3, 5, 500, 20));
+      //      // pass that object to the DAO layer
+      //      LiftRideDao liftRideDao = new LiftRideDao();
+      //      // construct a LiftRide object with those values
+      //      liftRideDao.createLiftRide(new LiftRide(10, 2, 3, 5, 500, 20,15));
 
       //      // store url path variables  to a json format.
       //      PrintWriter out = response.getWriter();
@@ -129,14 +135,27 @@ public class SkiersServlet extends HttpServlet {
       response.setStatus(HttpServletResponse.SC_CREATED);
       response.getWriter().write("Write successful");
 
-      // Retrieve JSON object from request and passing to response.
-      //      PrintWriter out = response.getWriter();
-      //      String requestJsonString = request.getReader().lines().collect(Collectors.joining());
-      //      out.print(requestJsonString);
-      //      out.flush();
-
       // store JSON object and convert to RabbitMQ messages.
       String requestJsonString = request.getReader().lines().collect(Collectors.joining());
+
+      // use GSON to parse request jsonString and construct LiftRide object
+      Gson gson = new Gson();
+      LiftRide liftRide = gson.fromJson(requestJsonString, LiftRide.class);
+
+      // set variables
+      liftRide.setResortId(Integer.parseInt(pathMap.get("resortID")));
+      liftRide.setSeasonId(Integer.parseInt(pathMap.get("seasonID")));
+      liftRide.setDayId(Integer.parseInt(pathMap.get("dayID")));
+      liftRide.setSkierId(Integer.parseInt(pathMap.get("skierID")));
+
+      System.out.println("****LiftRide Object created*****" + liftRide.toString());
+
+      // pass that object to the DAO layer
+      LiftRideDao liftRideDao = new LiftRideDao();
+
+      // construct a LiftRide object with those values
+      liftRideDao.createLiftRide(liftRide);
+
       // Producer Process
       ConnectionFactory factory = new ConnectionFactory();
       factory.setHost(RABBITMQ_HOST);
@@ -155,8 +174,46 @@ public class SkiersServlet extends HttpServlet {
   }
 
   /**
+   * Parse path variables into a ConcurrentHashMap, threadsafe e.g.
+   * /skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID}/skiers/{skierID}/vertical
+   * {resortID:*, seasonID:*, dayID:*, skierID:*}
+   *
+   * @param urlParts
+   */
+  private void urlToMapHelper(String[] urlParts) {
+    System.out.println(Arrays.toString(urlParts));
+    System.out.println(urlParts.length);
+
+    // case urlParts = [, {resortID}, seasons, {seasonID}, days, {dayID}, skiers, {skierID}]
+    String resortID = urlParts[1];
+    //    System.out.println(resortID);
+    pathMap.put("resortID", resortID);
+
+    for (int i = 2; i < urlParts.length; i++) {
+      switch (urlParts[i]) {
+        case "seasons":
+          String seasonID = urlParts[i + 1];
+          pathMap.put("seasonID", seasonID);
+          //          System.out.println(seasonID);
+          break;
+        case "days":
+          String dayID = urlParts[i + 1];
+          pathMap.put("dayID", dayID);
+          //          System.out.println(dayID);
+          break;
+        case "skiers":
+          String skierID = urlParts[i + 1];
+          pathMap.put("skierID", skierID);
+          //          System.out.println(skierID);
+          break;
+        default:
+          continue;
+      }
+    }
+  }
+  /**
    * Check if path pattern matches at
-   * /skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID}
+   * /skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID} /skiers/{skierID}/vertical
    *
    * @param urlParts
    * @param reqUrl
@@ -168,41 +225,13 @@ public class SkiersServlet extends HttpServlet {
     // http://localhost:8080/server_war_exploded/skiers/3/vertical --pass
     UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
-    // Parse path variables into a Hashmap
-    Map<String, String> pathMap = new HashMap<>();
-
-    System.out.println(Arrays.toString(urlParts));
-    System.out.println(urlParts.length);
-
     // Check if the url is valid through UrlValidator
     if (urlValidator.isValid(reqUrl)) {
       // case urlParts = [, {resortID}, seasons, {seasonID}, days, {dayID}, skiers, {skierID}]
       if (urlParts.length == 8) {
-        String resortID = urlParts[1];
-        System.out.println(resortID);
-        pathMap.put("resortID", resortID);
+        // parse path variables into a Hashmap
+        urlToMapHelper(urlParts);
 
-        for (int i = 2; i < urlParts.length; i++) {
-          switch (urlParts[i]) {
-            case "seasons":
-              String seasonID = urlParts[i + 1];
-              pathMap.put("seasonID", seasonID);
-              System.out.println(seasonID);
-              break;
-            case "days":
-              String dayID = urlParts[i + 1];
-              pathMap.put("dayID", dayID);
-              System.out.println(dayID);
-              break;
-            case "skiers":
-              String skierID = urlParts[i + 1];
-              pathMap.put("skierID", skierID);
-              System.out.println(skierID);
-              break;
-            default:
-              continue;
-          }
-        }
         // last check if all info are parsed into hashmap
         return pathMap.size() == 4;
       }
