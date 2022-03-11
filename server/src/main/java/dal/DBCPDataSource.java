@@ -1,4 +1,4 @@
-package com.bsds.group101.server;
+package dal;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 

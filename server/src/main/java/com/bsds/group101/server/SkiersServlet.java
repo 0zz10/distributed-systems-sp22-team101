@@ -22,6 +22,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dal.LiftRideDao;
+import model.LiftRide;
+
 @WebServlet(name = "SkiersServlet", value = "/SkiersServlet")
 public class SkiersServlet extends HttpServlet {
   private static final int ServerWaitTime = 1000; // milliseconds
@@ -80,11 +83,6 @@ public class SkiersServlet extends HttpServlet {
       // return 200 success message
       response.setStatus(HttpServletResponse.SC_OK);
       response.getWriter().write("34507");
-
-      //      // pass that object to the DAO layer
-      //      LiftRideDao liftRideDao = new LiftRideDao();
-      //      // construct a LiftRide object with those values
-      //      liftRideDao.createLiftRide(new LiftRide(10, 2, 3, 5, 500, 20,15));
 
       //      // store url path variables  to a json format.
       //      PrintWriter out = response.getWriter();
@@ -165,8 +163,7 @@ public class SkiersServlet extends HttpServlet {
       try (Connection connection = factory.newConnection();
           Channel channel = connection.createChannel()) {
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-        channel.basicPublish(
-            "", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
+        channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
         System.out.println(" [x] Sent '" + message + "'");
       } catch (TimeoutException e) {
         e.printStackTrace();

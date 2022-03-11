@@ -1,10 +1,12 @@
-package com.bsds.group101.server;
+package dal;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import model.LiftRide;
 
 public class LiftRideDao {
   private static BasicDataSource dataSource;
