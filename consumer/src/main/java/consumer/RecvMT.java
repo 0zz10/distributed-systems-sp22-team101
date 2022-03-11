@@ -1,4 +1,4 @@
-/*
+package consumer;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -14,6 +14,9 @@ import com.rabbitmq.client.DeliverCallback;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import model.LiftRide;
+import dal.LiftRideDao;
 
 public class RecvMT {
 
@@ -52,17 +55,17 @@ public class RecvMT {
             channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             System.out.println("Callback thread ID = " + Thread.currentThread().getId() + " Received '" + message + "'");
 
-            // use GSON to parse request jsonString and construct LiftRide object
+            // use GSON to parse request jsonString and construct model.LiftRide object
             // e.g. "{'skierId':241, 'resortId':56, 'seasonId':56, 'dayId':56, 'time':386, 'waitTime':59, 'liftID':17}"
             Gson gson = new Gson();
             LiftRide liftRide = gson.fromJson(message, LiftRide.class);
 
-            System.out.println("****LiftRide Object consumed*****" + liftRide.toString());
+            System.out.println("****model.LiftRide Object consumed*****" + liftRide.toString());
 
             // pass that object to the DAO layer
             LiftRideDao liftRideDao = new LiftRideDao();
 
-            // construct a LiftRide object with those values
+            // construct a model.LiftRide object with those values
             liftRideDao.createLiftRide(liftRide);
           };
           // process messages
