@@ -163,7 +163,7 @@ public class SkiersServlet extends HttpServlet {
       factory.setPassword(RABBITMQ_PASSWORD);
       try (Connection connection = factory.newConnection();
           Channel channel = connection.createChannel()) {
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
         channel.basicPublish(
             "", QUEUE_NAME, null, requestJsonString.getBytes(StandardCharsets.UTF_8));
         System.out.println(" [x] Sent '" + requestJsonString + "'");
