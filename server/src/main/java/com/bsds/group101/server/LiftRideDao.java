@@ -18,7 +18,7 @@ public class LiftRideDao {
     Connection conn = null;
     PreparedStatement preparedStatement = null;
     String insertQueryStatement =
-        "INSERT INTO LiftRides (skierId, resortId, seasonId, dayId, time, waitTime, liftId) "
+        "INSERT INTO LiftRides (skierId, resortId, seasonId, dayId, time, waitTime, liftID) "
             + "VALUES (?,?,?,?,?,?,?)";
     try {
       conn = dataSource.getConnection();
@@ -29,13 +29,13 @@ public class LiftRideDao {
       preparedStatement.setInt(4, newLiftRide.getDayId());
       preparedStatement.setInt(5, newLiftRide.getTime());
       preparedStatement.setInt(6, newLiftRide.getWaitTime());
-      preparedStatement.setInt(7, newLiftRide.getLiftId());
+      preparedStatement.setInt(7, newLiftRide.getLiftID());
 
       // execute insert SQL statement
       preparedStatement.executeUpdate();
 
-      // log JDBC status
-      System.out.println("STORE TO DATABASE AT " + dataSource.getUrl());
+      //      // log JDBC status
+      //      System.out.println("STORE TO DATABASE AT " + dataSource.getUrl());
 
     } catch (SQLException e) {
       e.printStackTrace();
