@@ -157,6 +157,7 @@ public class SkiersServlet extends HttpServlet {
       liftRideDao.createLiftRide(liftRide);
 
       // Producer Process
+      String message = liftRide.toString();
       ConnectionFactory factory = new ConnectionFactory();
       factory.setHost(RABBITMQ_HOST);
       factory.setUsername(RABBITMQ_USERNAME);
@@ -165,8 +166,8 @@ public class SkiersServlet extends HttpServlet {
           Channel channel = connection.createChannel()) {
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
         channel.basicPublish(
-            "", QUEUE_NAME, null, requestJsonString.getBytes(StandardCharsets.UTF_8));
-        System.out.println(" [x] Sent '" + requestJsonString + "'");
+            "", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
+        System.out.println(" [x] Sent '" + message + "'");
       } catch (TimeoutException e) {
         e.printStackTrace();
       }
