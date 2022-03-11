@@ -5,7 +5,7 @@ import com.rabbitmq.client.DeliverCallback;
 
 import java.nio.charset.StandardCharsets;
 
-public class RecvMultithreaded {
+public class Recv {
 
   // create a hello queue to which the message will be delivered
   private static final String QUEUE_NAME = "liftRides";
@@ -23,7 +23,7 @@ public class RecvMultithreaded {
     Connection connection = factory.newConnection();
     Channel channel = connection.createChannel();
 
-    channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+    channel.queueDeclare(QUEUE_NAME, true, false, false, null);
     System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
     DeliverCallback deliverCallback =
