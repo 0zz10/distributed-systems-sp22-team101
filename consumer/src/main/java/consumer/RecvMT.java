@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import model.LiftRide;
 import dal.LiftRideDao;
+import model.LiftRide;
 
 public class RecvMT {
 
