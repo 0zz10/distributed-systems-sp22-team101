@@ -2,6 +2,7 @@ package com.bsds.group101.server;
 
 import com.google.gson.Gson;
 
+import com.bsds.group101.model.LiftRide;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -21,9 +22,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import dal.LiftRideDao;
-import model.LiftRide;
 
 @WebServlet(name = "SkiersServlet", value = "/SkiersServlet")
 public class SkiersServlet extends HttpServlet {
@@ -133,7 +131,7 @@ public class SkiersServlet extends HttpServlet {
       response.setStatus(HttpServletResponse.SC_CREATED);
       response.getWriter().write("Write successful");
 
-      // store JSON object and convert to RabbitMQ messages.
+      // join request body as a string.
       String requestJsonString = request.getReader().lines().collect(Collectors.joining());
 
       // use GSON to parse request jsonString and construct LiftRide object
@@ -145,14 +143,6 @@ public class SkiersServlet extends HttpServlet {
       liftRide.setSeasonId(Integer.parseInt(pathMap.get("seasonID")));
       liftRide.setDayId(Integer.parseInt(pathMap.get("dayID")));
       liftRide.setSkierId(Integer.parseInt(pathMap.get("skierID")));
-
-      System.out.println("****LiftRide Object created*****" + liftRide.toString());
-
-      // pass that object to the DAO layer
-      LiftRideDao liftRideDao = new LiftRideDao();
-
-      // construct a LiftRide object with those values
-      liftRideDao.createLiftRide(liftRide);
 
       // Producer Process
       String message = liftRide.toString();

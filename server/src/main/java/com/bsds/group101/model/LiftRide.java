@@ -1,4 +1,4 @@
-package model;
+package com.bsds.group101.model;
 
 public class LiftRide {
   private int skierId;
