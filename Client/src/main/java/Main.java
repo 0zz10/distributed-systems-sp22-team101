@@ -30,7 +30,7 @@ class Phase implements Runnable {
   private CSVWriter writer;
 
   //  String basePath = "http://localhost:8080/server_war_exploded";
-  String basePath = "http://107.21.172.149:8080/server-v1.0";
+  String basePath = "http://nlb-tomcats-77b69cecaa434b91.elb.us-east-1.amazonaws.com/server-v1.0";
   public static int sucecess = 0;
   public static int failure = 0;
   public static Vector<Integer> vectorCodes = new Vector<Integer>();
@@ -145,7 +145,7 @@ public class Main {
     // int ski_lifts = 45;
     int numRuns = 40;
     int numSkiers = 20000;
-    int numthreads = 256;
+    int numthreads = 128;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
         vector.add(i, i);
@@ -174,7 +174,7 @@ public class Main {
     // Create file object for file placed at location specified by filepath (../data/logs/)
     File file =
         new File(
-            "../data/logs/lab6_"
+            "../data/logs/lab7_"
                 + numRuns
                 + "runs_"
                 + numSkiers
