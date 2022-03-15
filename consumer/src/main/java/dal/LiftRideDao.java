@@ -1,5 +1,7 @@
 package dal;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
@@ -10,9 +12,12 @@ import model.LiftRide;
 
 public class LiftRideDao {
   private static BasicDataSource dataSource;
+  private static HikariDataSource hikariDataSource;
+
 
   public LiftRideDao() {
     dataSource = DBCPDataSource.getDataSource();
+    hikariDataSource = HikariCPDataSource.getDataSource();
   }
 
   // Make sure database and table exists before you call this data insertion
@@ -23,7 +28,8 @@ public class LiftRideDao {
             "INSERT INTO LiftRides (skierId, resortId, seasonId, dayId, time, waitTime, liftID) "
                     + "VALUES (?,?,?,?,?,?,?)";
     try {
-      conn = dataSource.getConnection();
+//      conn = dataSource.getConnection();
+      conn = hikariDataSource.getConnection();
       preparedStatement = conn.prepareStatement(insertQueryStatement);
       preparedStatement.setInt(1, newLiftRide.getSkierId());
       preparedStatement.setInt(2, newLiftRide.getResortId());
