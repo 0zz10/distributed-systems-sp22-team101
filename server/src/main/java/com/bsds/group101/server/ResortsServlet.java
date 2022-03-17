@@ -1,11 +1,22 @@
 package com.bsds.group101.server;
 
+import com.google.gson.Gson;
+
+import com.bsds.group101.model.ResortSeason;
+import com.bsds.group101.model.Year;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +27,15 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "ResortsServlet", value = "/ResortsServlet")
 public class ResortsServlet extends HttpServlet {
   private static final int ServerWaitTime = 1000; // milliseconds
+  // create a hello queue to which the message will be delivered
+  private static final String QUEUE_NAME = "resortSeasons";
+  // RabbitMQ EC2 Instance Credentials
+  private static final String RABBITMQ_HOST = "35.168.93.165";
+  private static final String RABBITMQ_USERNAME = "test";
+  private static final String RABBITMQ_PASSWORD = "test";
+
+  // Parse path variables into a Hashmap
+  Map<String, String> resortPathMap = new ConcurrentHashMap<>();
 
   // TODO try dummy for Lab4
   String dummyResortsList =
@@ -120,6 +140,35 @@ public class ResortsServlet extends HttpServlet {
       // new season created - 201 success message
       response.setStatus(HttpServletResponse.SC_CREATED);
       response.getWriter().write("new season created");
+
+      // join request body as a string.
+      // e.g. "{'year': 2019}"
+      String requestJsonString = request.getReader().lines().collect(Collectors.joining());
+
+      // use GSON to parse request jsonString and construct Year object
+      Gson gson = new Gson();
+      Year year = gson.fromJson(requestJsonString, Year.class);
+
+      // initiate ResortSeason object for single record for producing message
+      int resortId = Integer.parseInt(resortPathMap.get("resortID"));
+      int seasonId = year.getYear();
+      ResortSeason resortSeason = new ResortSeason(resortId, seasonId);
+
+      // Producer Process
+      // e.g. "{'resortId':1, 'seasonId':2009}"
+      String message = resortSeason.toString();
+      ConnectionFactory factory = new ConnectionFactory();
+      factory.setHost(RABBITMQ_HOST);
+      factory.setUsername(RABBITMQ_USERNAME);
+      factory.setPassword(RABBITMQ_PASSWORD);
+      try (Connection connection = factory.newConnection();
+          Channel channel = connection.createChannel()) {
+        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+        channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
+        System.out.println(" [x] Sent '" + message + "'");
+      } catch (TimeoutException e) {
+        e.printStackTrace();
+      }
     }
   }
 
@@ -135,8 +184,6 @@ public class ResortsServlet extends HttpServlet {
     // url validator help module
     UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
-    Map<String, String> resortPathMap = new HashMap<>();
-
     System.out.println(Arrays.toString(urlParts));
     System.out.println(urlParts.length);
 
@@ -145,7 +192,7 @@ public class ResortsServlet extends HttpServlet {
       // case urlParts = [, {resortID}, seasons, {seasonID}, days, {dayID}, skiers]
       if (urlParts.length == 7) {
         String resortID = urlParts[1];
-        System.out.println(resortID);
+        //        System.out.println(resortID);
         resortPathMap.put("resortID", resortID);
 
         for (int i = 2; i < urlParts.length; i++) {
@@ -153,12 +200,12 @@ public class ResortsServlet extends HttpServlet {
             case "seasons":
               String seasonID = urlParts[i + 1];
               resortPathMap.put("seasonID", seasonID);
-              System.out.println(seasonID);
+              //              System.out.println(seasonID);
               break;
             case "days":
               String dayID = urlParts[i + 1];
               resortPathMap.put("dayID", dayID);
-              System.out.println(dayID);
+              //              System.out.println(dayID);
               break;
             default:
               continue;
@@ -170,9 +217,7 @@ public class ResortsServlet extends HttpServlet {
       // case urlParts = [, {resortID}, seasons]
       if (urlParts.length == 3 && urlParts[2].equals("seasons")) {
         String resortID = urlParts[1];
-        System.out.println(resortID);
         resortPathMap.put("resortID", resortID);
-        System.out.println(resortPathMap.toString());
         return resortPathMap.size() == 1;
       }
     }
