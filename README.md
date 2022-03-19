@@ -555,22 +555,87 @@ Caused by: java.net.SocketTimeoutException: Read timed out
 ![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2033.png)
 
 1. A brief explanation of your mitigation strategy and either a design, or if you get it working go ahead and show results with 128, 256 clients to show their effects. Hopefully positive but negative is fine with good analysis!
-    
-    
-    By default, Tomcat sets `maxThreads`
-     to 200, which represents the maximum number of threads allowed to run at any given time. You can also specify values for the following parameters:
-    
-    ![Datadog. (, 00:00 +  UTC). *Understanding the Tomcat architecture and key performance metrics*. Understanding the Tomcat Architecture and Key Performance Metrics. [https://www.datadoghq.com/blog/tomcat-architecture-and-performance/](https://www.datadoghq.com/blog/tomcat-architecture-and-performance/)](Lab%207%20-%20Ad%207a431/Untitled%2034.png)
-    
-    Datadog. (, 00:00 +  UTC). *Understanding the Tomcat architecture and key performance metrics*. Understanding the Tomcat Architecture and Key Performance Metrics. [https://www.datadoghq.com/blog/tomcat-architecture-and-performance/](https://www.datadoghq.com/blog/tomcat-architecture-and-performance/)
-    
-    Upon startup, Tomcat will create threads based on the value set for `minSpareThreads`
-     and increase that number based on demand, up to the number of `maxThreads`. If the maximum number of threads is reached, and all threads are busy, the server will only continue to accept a certain number of concurrent connections (as determined by `maxConnections`). 
-    
-    Once that limit is reached, new connections are placed in a queue (`acceptCount`) to wait for the next available thread. When the number of connections hits `maxConnections` and the queue is full, any additional incoming clients will start receiving `Connection Refused`errors. 
-    
-    If your server begins generating these errors, you will need to adjust your connectors' thread pool capacity to better accommodate the number of incoming requests.
-    
+
+## Increase Capacity to avoid backlogs
+
+[EC2 On-Demand Instance Pricing - Amazon Web Services](https://aws.amazon.com/ec2/pricing/on-demand/)
+
+### Tomcat maxThreads
+
+By default, Tomcat sets `maxThreads`to 200, which represents the maximum number of threads allowed to run at any given time. You can also specify values for the following parameters:
+
+![Datadog. (, 00:00 +  UTC). *Understanding the Tomcat architecture and key performance metrics*. Understanding the Tomcat Architecture and Key Performance Metrics. [https://www.datadoghq.com/blog/tomcat-architecture-and-performance/](https://www.datadoghq.com/blog/tomcat-architecture-and-performance/)](Lab%207%20-%20Ad%207a431/Untitled%2034.png)
+
+Datadog. (, 00:00 +  UTC). *Understanding the Tomcat architecture and key performance metrics*. Understanding the Tomcat Architecture and Key Performance Metrics. [https://www.datadoghq.com/blog/tomcat-architecture-and-performance/](https://www.datadoghq.com/blog/tomcat-architecture-and-performance/)
+
+Upon startup, Tomcat will create threads based on the value set for `minSpareThreads`
+ and increase that number based on demand, up to the number of `maxThreads`. If the maximum number of threads is reached, and all threads are busy, the server will only continue to accept a certain number of concurrent connections (as determined by `maxConnections`). 
+
+Once that limit is reached, new connections are placed in a queue (`acceptCount`) to wait for the next available thread. When the number of connections hits `maxConnections` and the queue is full, any additional incoming clients will start receiving `Connection Refused`errors. 
+
+If your server begins generating these errors, you will need to adjust your connectors' thread pool capacity to better accommodate the number of incoming requests.
+
+### Upgrade RabbitMQ instance
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2035.png)
+
+[Amazon EC2 T2 Instances - Amazon Web Services (AWS)](https://aws.amazon.com/ec2/instance-types/t2/)
+
+### T2.small RabbitMQ + 4xT2.micro tomcat
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2036.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2037.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2038.png)
+
+### T2.medium RabbitMQ + T2.medium tomcat
+
+```
+total requests: 479196
+mean response time: 478 ms
+duration: 920169 ms
+Throughput: 520 requests/s
+```
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2039.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2040.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2041.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2042.png)
+
+### T3.large RabbitMQ + T2.medium tomcat
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2043.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2044.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2045.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2046.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2047.png)
+
+### T2.large RabbitMQ + T2.large tomcat
+
+```
+total requests: 479803
+mean response time: 489 ms
+duration: 942605 ms
+Throughput: 509 requests/s
+```
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2048.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2049.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2050.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2051.png)
+
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2052.png)
 
 # Troubleshoots
 
@@ -586,7 +651,7 @@ Check status of Tomcat Service:
 $ systemctl status tomcat
 ```
 
-![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2035.png)
+![Untitled](Lab%207%20-%20Ad%207a431/Untitled%2053.png)
 
 ```bash
 $ sudo systemctl start tomcat
@@ -630,7 +695,7 @@ let it connect the queue
 1. close it.
 2. start the producer
 
-![`channel.queueDeclare(QUEUE_NAME, true, false, false, null);`](Lab%207%20-%20Ad%207a431/Untitled%2036.png)
+![`channel.queueDeclare(QUEUE_NAME, true, false, false, null);`](Lab%207%20-%20Ad%207a431/Untitled%2054.png)
 
 `channel.queueDeclare(QUEUE_NAME, true, false, false, null);`
 

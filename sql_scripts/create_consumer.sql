@@ -10,3 +10,9 @@ CREATE TABLE `Consumer`.`LiftRides` (
   `time` INT NULL,
   `waitTime` INT NULL,
   `liftID` INT NULL);
+  
+  CREATE TABLE `Consumer`.`ResortSeasons` (
+  `recordId` INT NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`recordId`),
+  `resortId` INT NULL,
+  `seasonId` INT NULL);
