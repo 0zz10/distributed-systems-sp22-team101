@@ -13,8 +13,10 @@ import java.util.concurrent.Executors;
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
 import io.swagger.client.ApiResponse;
+import io.swagger.client.api.ResortsApi;
 import io.swagger.client.api.SkiersApi;
 import io.swagger.client.model.LiftRide;
+import io.swagger.client.model.ResortIDSeasonsBody;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
 
@@ -34,6 +36,7 @@ class Phase implements Runnable {
   // "http://nlb-tomcats-77b69cecaa434b91.elb.us-east-1.amazonaws.com/server-v1.0"; //network load
   // balancer
   String basePath = "http://107.21.172.149:8080/server-v1.0"; // tomcat1
+
 
   public static int sucecess = 0;
   public static int failure = 0;
@@ -86,6 +89,7 @@ class Phase implements Runnable {
       long reqStartTime = System.currentTimeMillis();
       // vectorStart.add(sTime);
       SkiersApi apiInstance = new SkiersApi();
+      ResortsApi resortApiInstance = new ResortsApi();
       ApiClient client = apiInstance.getApiClient();
       client.setBasePath(basePath);
 
@@ -103,9 +107,16 @@ class Phase implements Runnable {
       liftRide.setLiftID(liftID);
       liftRide.setWaitTime(waitTime);
 
+      Integer randomYear = current().nextInt(2000, 2022);
+      Integer randomResortID = current().nextInt(0, 100);
+
       try {
         ApiResponse res =
             apiInstance.writeNewLiftRideWithHttpInfo(liftRide, resortID, seasonID, dayID, skierID);
+        ResortIDSeasonsBody resortIDSeasonsBody = new ResortIDSeasonsBody();
+        resortIDSeasonsBody.setYear(randomYear.toString());
+        //resortApiInstance.addSeasonWithHttpInfo(resortIDSeasonsBody, 100);
+        resortApiInstance.addSeason(resortIDSeasonsBody, randomResortID);
         sucecess++;
         vectorCodes.add(new Integer(res.getStatusCode()));
 
