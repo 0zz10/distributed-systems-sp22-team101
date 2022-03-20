@@ -109,6 +109,7 @@ class Phase implements Runnable {
 
       Integer randomYear = current().nextInt(2000, 2022);
       Integer randomResortID = current().nextInt(0, 100);
+      
 
       try {
         ApiResponse res =
