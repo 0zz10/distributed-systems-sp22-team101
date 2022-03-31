@@ -2,6 +2,7 @@ package com.bsds.group101.server;
 
 import com.google.gson.Gson;
 
+import com.bsds.group101.dal.ResortDao;
 import com.bsds.group101.model.ResortSeason;
 import com.bsds.group101.model.Year;
 import com.bsds.group101.util.ConnectionPool;
@@ -13,6 +14,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
@@ -86,9 +88,19 @@ public class ResortsServlet extends HttpServlet {
 
     // get a list of ski resorts in the database
     if (urlPath == null || urlPath.isEmpty()) {
-      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-      response.getWriter().write(dummyResortsList);
-      return;
+      // initiate ResortDao object for data access
+      ResortDao resortDao = new ResortDao();
+      response.setStatus(HttpServletResponse.SC_OK);
+      //      PrintWriter out = response.getWriter();
+      //      ArrayList<Integer> resortsList = resortDao.getResortsList();
+      //      StringBuilder jsonOutputString = new StringBuilder("{\"resorts\": [");
+      //      for (Integer resortId : resortsList){
+      //        jsonOutputString.append(String.format("{\"resortID\": \"%s\"},", resortId));
+      //      }
+      //      jsonOutputString.append("]}");
+      //      out.write(jsonOutputString.toString());
+      //      out.flush();
+      response.getWriter().write(resortDao.getResortsList().toString());
     }
 
     // check full url at UrlValidator
@@ -105,14 +117,30 @@ public class ResortsServlet extends HttpServlet {
           .write("{ \"message\":\"" + isUrlValid(urlParts, reqUrl) + reqUrl + "\"}");
 
     } else {
+      // initiate ResortDao object for data access
+      ResortDao resortDao = new ResortDao();
+      int resortId = Integer.parseInt(resortPathMap.get("resortID"));
+
+      // GET/resorts/{resortID}/seasons/{seasonID}/day/{dayID}/skiers
       if (urlParts[urlParts.length - 1].equals("skiers")) {
+        int seasonId = Integer.parseInt(resortPathMap.get("seasonID"));
+        int dayId = Integer.parseInt(resortPathMap.get("dayID"));
         // return 200 success message
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().write("{ \"time\":\"Mission Ridge\",  \"numSkiers\":\"78999\"}");
+        //        response.getWriter().write("{ \"time\":\"Mission Ridge\",
+        // \"numSkiers\":\"78999\"}");
+        PrintWriter out = response.getWriter();
+        int numUniqueSkiers = resortDao.getNumberOfSkiersAtResort(resortId, seasonId, dayId);
+        String jsonOutputString =
+            String.format("{\"resortID\": \"%s\", \"numSkiers\": %d}", resortId, numUniqueSkiers);
+        out.write(jsonOutputString);
+        out.flush();
       } else if (urlParts[urlParts.length - 1].equals("seasons")) {
+        // GET/resorts/{resortID}/seasons
         // return 200 success message
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().write(dummySeasonsList);
+        //        response.getWriter().write(dummySeasonsList);
+        response.getWriter().write(resortDao.getSeasonsListAtResort(resortId).toString());
       }
     }
   }
@@ -246,6 +274,9 @@ public class ResortsServlet extends HttpServlet {
       if (urlParts.length == 3 && urlParts[2].equals("seasons")) {
         String resortID = urlParts[1];
         resortPathMap.put("resortID", resortID);
+        System.out.println(resortPathMap.size());
+        System.out.println(resortPathMap.toString());
+
         return resortPathMap.size() == 1;
       }
     }
