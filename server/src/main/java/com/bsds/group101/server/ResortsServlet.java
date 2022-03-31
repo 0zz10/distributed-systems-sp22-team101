@@ -33,7 +33,7 @@ public class ResortsServlet extends HttpServlet {
   // create a hello queue to which the message will be delivered
   private static final String QUEUE_NAME = "resortSeasons";
   // RabbitMQ EC2 Instance Credentials
-  private static final String RABBITMQ_HOST = "35.168.93.165";
+  private static final String RABBITMQ_HOST = "3.133.206.242";
   private static final String RABBITMQ_USERNAME = "test";
   private static final String RABBITMQ_PASSWORD = "test";
 
