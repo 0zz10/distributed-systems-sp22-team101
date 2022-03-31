@@ -96,6 +96,7 @@ class Phase implements Runnable {
       Integer resortID = 56; // Integer | ID of the resort
       String seasonID = "56"; // String | ID of the season
       String dayID = "56"; // String | ID of the day
+      Integer randomDayID = current().nextInt(1, 3);
       Integer skierID =
           current().nextInt(this.skiLow, this.skiHigh + 1); // Integer | ID of the skier;
       Integer time = current().nextInt(100, 500);
@@ -113,7 +114,7 @@ class Phase implements Runnable {
 
       try {
         ApiResponse res =
-            apiInstance.writeNewLiftRideWithHttpInfo(liftRide, resortID, randomYear.toString(), dayID, skierID);
+            apiInstance.writeNewLiftRideWithHttpInfo(liftRide, randomResortID, randomYear.toString(), randomDayID.toString(), skierID);
         ResortIDSeasonsBody resortIDSeasonsBody = new ResortIDSeasonsBody();
         resortIDSeasonsBody.setYear(randomYear.toString());
         //resortApiInstance.addSeasonWithHttpInfo(resortIDSeasonsBody, 100);
