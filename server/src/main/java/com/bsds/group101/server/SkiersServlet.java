@@ -3,10 +3,12 @@ package com.bsds.group101.server;
 import com.google.gson.Gson;
 
 import com.bsds.group101.model.LiftRide;
+import com.bsds.group101.util.ConnectionPool;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.IOException;
@@ -25,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "SkiersServlet", value = "/SkiersServlet")
 public class SkiersServlet extends HttpServlet {
-  private static final int ServerWaitTime = 1000; // milliseconds
   // create a hello queue to which the message will be delivered
   private static final String QUEUE_NAME = "liftRides";
   // RabbitMQ EC2 Instance Credentials
@@ -35,6 +36,21 @@ public class SkiersServlet extends HttpServlet {
 
   // Parse path variables into a Hashmap
   Map<String, String> pathMap = new ConcurrentHashMap<>();
+
+  // Instantiate connection pool for long existing
+  private ConnectionFactory factory;
+  private ObjectPool<Channel> channelObjectPool;
+
+  public SkiersServlet() throws IOException, TimeoutException {
+    this.factory = new ConnectionFactory();
+    this.factory.setHost(RABBITMQ_HOST);
+    this.factory.setUsername(RABBITMQ_USERNAME);
+    this.factory.setPassword(RABBITMQ_PASSWORD);
+    //    this.factory.setPort(5672);
+    // Pooling the connection pool of RabbitMQ
+    this.channelObjectPool =
+        new GenericObjectPool<>(new ConnectionPool(QUEUE_NAME, factory.newConnection()));
+  }
 
   /**
    * Get ski day vertical for a skier
@@ -145,19 +161,33 @@ public class SkiersServlet extends HttpServlet {
       liftRide.setSkierId(Integer.parseInt(pathMap.get("skierID")));
 
       // Producer Process
+      // e.g. {'skierId':426, 'resortId':56, 'seasonId':56, 'dayId':56, 'time':437, 'waitTime':65,
+      // 'liftID':19}
       String message = liftRide.toString();
-      ConnectionFactory factory = new ConnectionFactory();
-      factory.setHost(RABBITMQ_HOST);
-      factory.setUsername(RABBITMQ_USERNAME);
-      factory.setPassword(RABBITMQ_PASSWORD);
-      try (Connection connection = factory.newConnection();
-          Channel channel = connection.createChannel()) {
-        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+      try {
+        // Instead of creating a new channel each time, borrow from GenericObjectPool
+        Channel channel = channelObjectPool.borrowObject();
         channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
         System.out.println(" [x] Sent '" + message + "'");
-      } catch (TimeoutException e) {
+        // Free the use of this channel in multi-threaded
+        channelObjectPool.returnObject(channel);
+      } catch (Exception e) {
         e.printStackTrace();
       }
+
+      //      ConnectionFactory factory = new ConnectionFactory();
+      //      factory.setHost(RABBITMQ_HOST);
+      //      factory.setUsername(RABBITMQ_USERNAME);
+      //      factory.setPassword(RABBITMQ_PASSWORD);
+      //      try (Connection connection = factory.newConnection();
+      //          Channel channel = connection.createChannel()) {
+      //        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+      //        channel.basicPublish("", QUEUE_NAME, null,
+      // message.getBytes(StandardCharsets.UTF_8));
+      //        System.out.println(" [x] Sent '" + message + "'");
+      //      } catch (TimeoutException e) {
+      //        e.printStackTrace();
+      //      }
     }
   }
 
