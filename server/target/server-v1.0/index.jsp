@@ -2,17 +2,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Lab4</title>
+    <title>JSP - Team101</title>
 </head>
 <body>
-<h1><%= "Lab 4 - Milestone 1" %>
+<h1><%= "Lab 9 - Milestone 3" %>
 </h1>
 <ul>
     <li><b>resorts:
         Ski Resort Lift Data information</b>
         <ol>
             <li><a href="resorts">200 - get a list of ski resorts in the database</a></li>
-            <li><a href="resorts/1/seasons/2019/days/3/skiers">200 - get number of unique
+            <li><a href="resorts/1/seasons/2005/days/1/skiers">200 - get number of unique
                 skiers at resort/season/day</a></li>
             <li><a href="resorts/1/seasons">200 - get a list of seasons for the specified
                 resort</a></li>
