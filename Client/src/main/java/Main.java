@@ -113,7 +113,7 @@ class Phase implements Runnable {
 
       try {
         ApiResponse res =
-            apiInstance.writeNewLiftRideWithHttpInfo(liftRide, resortID, seasonID, dayID, skierID);
+            apiInstance.writeNewLiftRideWithHttpInfo(liftRide, resortID, randomYear.toString(), dayID, skierID);
         ResortIDSeasonsBody resortIDSeasonsBody = new ResortIDSeasonsBody();
         resortIDSeasonsBody.setYear(randomYear.toString());
         //resortApiInstance.addSeasonWithHttpInfo(resortIDSeasonsBody, 100);
@@ -161,7 +161,7 @@ public class Main {
     // int ski_lifts = 45;
     int numRuns = 40;
     int numSkiers = 20000;
-    int numthreads = 256;
+    int numthreads = 128;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
         vector.add(i, i);

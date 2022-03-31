@@ -1,20 +1,3 @@
-SELECT 
-    *
-FROM
-    Consumer.LiftRides;
-
-SELECT 
-    COUNT(recordId)
-FROM
-    Consumer.LiftRides;
-
-SELECT 
-    skierId, COUNT(recordId), AVG(time), AVG(waitTime)
-FROM
-    Consumer.LiftRides
-GROUP BY skierId
-ORDER BY COUNT(recordId) DESC;
-
 -- get number of unique skiers at resort/season/day
 -- GET/resorts/{resortID}/seasons/{seasonID}/day/{dayID}/skiers
 SELECT 
@@ -37,3 +20,11 @@ ORDER BY
     
 -- get a list of seasons for the specified resort
 -- GET/resorts/{resortID}/seasons
+SELECT 
+    DISTINCT seasonId
+FROM
+    Consumer.ResortSeasons
+WHERE
+	resortId = 56
+ORDER BY
+	seasonId ASC;
