@@ -46,7 +46,7 @@ public class SkiersServlet extends HttpServlet {
     this.factory.setHost(RABBITMQ_HOST);
     this.factory.setUsername(RABBITMQ_USERNAME);
     this.factory.setPassword(RABBITMQ_PASSWORD);
-    //    this.factory.setPort(5672);
+    this.factory.setPort(5672);
     // Pooling the connection pool of RabbitMQ
     this.channelObjectPool =
         new GenericObjectPool<>(new ConnectionPool(QUEUE_NAME, factory.newConnection()));
