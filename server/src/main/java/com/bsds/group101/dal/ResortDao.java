@@ -16,6 +16,10 @@ public class ResortDao {
     hikariDataSource = HikariCPDataSource.getDataSource();
   }
   // Make sure database and table exists before you call this data query
+
+  /*
+  http://3.23.64.117:8080/server-v1.0/resorts
+   */
   public ArrayList<Integer> getResortsList() {
     Connection conn = null;
     PreparedStatement preparedStatement = null;

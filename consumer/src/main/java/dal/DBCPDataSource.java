@@ -6,11 +6,11 @@ public class DBCPDataSource {
   private static BasicDataSource dataSource;
 
   // NEVER store sensitive information below in plain text!
-  private static final String HOST_NAME = "skiers.cigqmeundgjd.us-east-1.rds.amazonaws.com";
+  private static final String HOST_NAME = "database-1.crk200mogwtc.us-east-2.rds.amazonaws.com";
   private static final String PORT = "3306";
   private static final String DATABASE = "Consumer";
   private static final String USERNAME = "admin";
-  private static final String PASSWORD = "BSDS+22spring";
+  private static final String PASSWORD = "adminadmin";
 
   static {
     // https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html

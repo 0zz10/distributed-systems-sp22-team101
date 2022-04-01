@@ -36,7 +36,7 @@ class Phase implements Runnable {
   // "http://nlb-tomcats-77b69cecaa434b91.elb.us-east-1.amazonaws.com/server-v1.0"; //network load
   // balancer
   //String basePath = "http://107.21.172.149:8080/server-v1.0"; // tomcat1
-  String basePath = "http://3.23.64.117:8080/server-v1.0"; // tomcat1
+  String basePath = "http://3.23.64.117:8080/server-v1.0"; // Han's server
 
   public static int sucecess = 0;
   public static int failure = 0;
