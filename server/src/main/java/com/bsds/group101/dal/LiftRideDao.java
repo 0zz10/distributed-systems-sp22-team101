@@ -65,7 +65,7 @@ public class LiftRideDao {
     Connection conn = null;
     PreparedStatement preparedStatement = null;
     String selectQueryStatement =
-        "SELECT seasonId, SUM(liftId * 10) AS totalVert FROM Consumer.LiftRides WHERE resortId = 56 AND dayId = 56 AND skierId = ? GROUP BY seasonId ORDER BY seasonId ASC;";
+        "SELECT seasonId, SUM(liftId * 10) AS totalVert FROM Consumer.LiftRides WHERE skierId = ? GROUP BY seasonId ORDER BY seasonId ASC;";
     // instantiate a map for {"seasonID": "totalVert"}
     Map<Integer, Integer> seasonsToVerticalMap = new ConcurrentHashMap<>();
     try {
