@@ -162,7 +162,7 @@ public class Main {
     // int ski_lifts = 45;
     int numRuns = 40;
     int numSkiers = 20000;
-    int numthreads = 128;
+    int numthreads = 256;
     /*Vector vector = new Vector<Skiers>(numSkiers);
     for (int i = 0; i < numSkiers; i++) {
         vector.add(i, i);
