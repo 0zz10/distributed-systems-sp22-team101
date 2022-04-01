@@ -273,10 +273,8 @@ public class ResortsServlet extends HttpServlet {
       // case urlParts = [, {resortID}, seasons]
       if (urlParts.length == 3 && urlParts[2].equals("seasons")) {
         String resortID = urlParts[1];
+        resortPathMap.clear();
         resortPathMap.put("resortID", resortID);
-        System.out.println(resortPathMap.size());
-        System.out.println(resortPathMap.toString());
-
         return resortPathMap.size() == 1;
       }
     }

@@ -2,6 +2,7 @@ package com.bsds.group101.server;
 
 import com.google.gson.Gson;
 
+import com.bsds.group101.dal.LiftRideDao;
 import com.bsds.group101.model.LiftRide;
 import com.bsds.group101.util.ConnectionPool;
 import com.rabbitmq.client.Channel;
@@ -12,6 +13,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
@@ -65,7 +67,7 @@ public class SkiersServlet extends HttpServlet {
       throws ServletException, IOException {
     // test System.getProperty
     // System.out.println(System.getProperty("RABBITMQ_USERNAME"));
-
+    LiftRideDao liftRideDao = new LiftRideDao();
     // return response in json
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
@@ -96,13 +98,35 @@ public class SkiersServlet extends HttpServlet {
     } else {
       // return 200 success message
       response.setStatus(HttpServletResponse.SC_OK);
-      response.getWriter().write("34507");
+      int skierId = Integer.parseInt(pathMap.get("skierID"));
 
-      //      // store url path variables  to a json format.
-      //      PrintWriter out = response.getWriter();
-      //      String pathJsonString = new Gson().toJson(pathMap);
-      //      out.print(pathJsonString);
-      //      out.flush();
+      // GET/skiers/{resortID}/seasons/{seasonID}/days/{dayID}/skiers/{skierID}
+      if (pathMap.size() == 4) {
+        int resortId = Integer.parseInt(pathMap.get("resortID"));
+        int seasonId = Integer.parseInt(pathMap.get("seasonID"));
+        int dayId = Integer.parseInt(pathMap.get("dayID"));
+        PrintWriter out = response.getWriter();
+        int dayVerticalOfSkiersForDay =
+            liftRideDao.getDayVerticalOfSkiersForDay(resortId, seasonId, dayId, skierId);
+        String jsonOutputString =
+            String.format(
+                "{\"skierId\": \"%s\", \"dayID\": \"%s\", \"dayVertical\": %d}",
+                skierId, dayId, dayVerticalOfSkiersForDay);
+        out.write(jsonOutputString);
+        out.flush();
+        //        response
+        //            .getWriter()
+        //            .write(liftRideDao.getDayVerticalOfSkiersForDay(resortId, seasonId, dayId,
+        // skierId));
+      } else {
+        // GET/skiers/{skierID}/vertical
+        Map<Integer, Integer> seasonsToVerticalMap = liftRideDao.getSeasonsListAtSkier(skierId);
+        // store url path variables  to a json format.
+        PrintWriter out = response.getWriter();
+        String outJsonString = new Gson().toJson(seasonsToVerticalMap);
+        out.print(outJsonString);
+        out.flush();
+      }
     }
   }
 
@@ -204,7 +228,6 @@ public class SkiersServlet extends HttpServlet {
 
     // case urlParts = [, {resortID}, seasons, {seasonID}, days, {dayID}, skiers, {skierID}]
     String resortID = urlParts[1];
-    //    System.out.println(resortID);
     pathMap.put("resortID", resortID);
 
     for (int i = 2; i < urlParts.length; i++) {
@@ -212,17 +235,14 @@ public class SkiersServlet extends HttpServlet {
         case "seasons":
           String seasonID = urlParts[i + 1];
           pathMap.put("seasonID", seasonID);
-          //          System.out.println(seasonID);
           break;
         case "days":
           String dayID = urlParts[i + 1];
           pathMap.put("dayID", dayID);
-          //          System.out.println(dayID);
           break;
         case "skiers":
           String skierID = urlParts[i + 1];
           pathMap.put("skierID", skierID);
-          //          System.out.println(skierID);
           break;
         default:
           continue;
@@ -255,8 +275,10 @@ public class SkiersServlet extends HttpServlet {
       }
       // case urlParts = [, {skierID}, vertical]
       if (urlParts.length == 3 && urlParts[2].equals("vertical")) {
-        // TODO get the total vertical for the skier for specified seasons at the specified resort
-        return true;
+        String skierID = urlParts[1];
+        pathMap.clear();
+        pathMap.put("skierID", skierID);
+        return pathMap.size() == 1;
       }
     }
     return false;
