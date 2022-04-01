@@ -6,9 +6,9 @@ SELECT
 FROM
     Consumer.LiftRides
 WHERE
-    resortId = 1 AND seasonId = 2019
-        AND dayId = 3
-        AND skierId = 1;
+    resortId = 18 AND seasonId = 2011
+        AND dayId = 1
+        AND skierId = 533;
 
 
 -- get the total vertical for the skier the specified resort. 

@@ -89,8 +89,8 @@ public class ResortsServlet extends HttpServlet {
     // get a list of ski resorts in the database
     if (urlPath == null || urlPath.isEmpty()) {
       // initiate ResortDao object for data access
-      ResortDao resortDao = new ResortDao();
       response.setStatus(HttpServletResponse.SC_OK);
+      ResortDao resortDao = new ResortDao();
       //      PrintWriter out = response.getWriter();
       //      ArrayList<Integer> resortsList = resortDao.getResortsList();
       //      StringBuilder jsonOutputString = new StringBuilder("{\"resorts\": [");
