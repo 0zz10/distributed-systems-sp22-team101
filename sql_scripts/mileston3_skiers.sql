@@ -19,6 +19,6 @@ SELECT
 FROM
     Consumer.LiftRides
 WHERE
-    skierId = 100
+    skierId = 3
 GROUP BY seasonId
 ORDER BY seasonId ASC;
