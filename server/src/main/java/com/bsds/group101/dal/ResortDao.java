@@ -52,6 +52,9 @@ public class ResortDao {
     return resortsList;
   }
 
+  /*
+  http://3.23.64.117:8080/server-v1.0/resorts/1/seasons/2005/days/1/skiers
+   */
   public int getNumberOfSkiersAtResort(int resortId, int seasonId, int dayId) {
     Connection conn = null;
     PreparedStatement preparedStatement = null;
