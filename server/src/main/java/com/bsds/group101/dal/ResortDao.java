@@ -48,6 +48,7 @@ public class ResortDao {
     return resortsList;
   }
 
+  //  get number of unique skiers at resort/season/day
   public int getNumberOfSkiersAtResort(int resortId, int seasonId, int dayId) {
     Connection conn = null;
     PreparedStatement preparedStatement = null;
@@ -87,6 +88,7 @@ public class ResortDao {
     return numUniqueSkiers;
   }
 
+  //  get a list of seasons for the specified resort
   public ArrayList<Integer> getSeasonsListAtResort(int resortId) {
     Connection conn = null;
     PreparedStatement preparedStatement = null;

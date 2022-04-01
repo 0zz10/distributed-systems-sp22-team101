@@ -6,19 +6,19 @@ SELECT
 FROM
     Consumer.LiftRides
 WHERE
-    resortId = 56 AND seasonId = 56
-        AND dayId = 56
-        AND skierId = 100;
+    resortId = 1 AND seasonId = 2019
+        AND dayId = 3
+        AND skierId = 1;
 
 
--- get the total vertical for the skier for specified seasons at the specified resort
+-- get the total vertical for the skier the specified resort. 
+-- If no season is specified, return all seasons
 -- GET/skiers/{skierID}/vertical
 SELECT 
     seasonId, SUM(liftId * 10) AS totalVert
 FROM
     Consumer.LiftRides
 WHERE
-    resortId = 56 AND dayId = 56
-        AND skierId = 100
+    skierId = 3
 GROUP BY seasonId
 ORDER BY seasonId ASC;
