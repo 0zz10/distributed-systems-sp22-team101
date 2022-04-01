@@ -96,12 +96,12 @@ class Phase implements Runnable {
       Integer resortID = 56; // Integer | ID of the resort
       String seasonID = "56"; // String | ID of the season
       String dayID = "56"; // String | ID of the day
-      Integer randomDayID = current().nextInt(1, 3);
+      Integer randomDayID = current().nextInt(1, 4);
       Integer skierID =
           current().nextInt(this.skiLow, this.skiHigh + 1); // Integer | ID of the skier;
-      Integer time = current().nextInt(100, 500);
-      Integer liftID = current().nextInt(0, 20);
-      Integer waitTime = current().nextInt(0, 100);
+      Integer time = current().nextInt(100, 501);
+      Integer liftID = current().nextInt(0, 21);
+      Integer waitTime = current().nextInt(0, 101);
       LiftRide liftRide = new LiftRide();
       // instantiate liftRide object to avoid empty request body
       liftRide.setTime(time);
@@ -191,7 +191,7 @@ public class Main {
     // Create file object for file placed at location specified by filepath (../data/logs/)
     File file =
         new File(
-            "../data/logs/lab7_"
+            "../data/logs/lab9_"
                 + numRuns
                 + "runs_"
                 + numSkiers
